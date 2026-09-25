@@ -1,0 +1,51 @@
+# Routes
+# This file defines all application routes.
+
+### Welcome Page
++ nocsrf
+GET      /                          controllers.MainController.welcome()
+
+### Player Registration
++ nocsrf
+POST     /                          controllers.MainController.welcomeSubmit()
+
+### Game Main Page
++ nocsrf
+GET      /play                      controllers.MainController.index()
+
+### Player State & Navigation
++ nocsrf
+GET      /player/state              controllers.MainController.getPlayerState()
++ nocsrf
+POST     /player/navigate/:area     controllers.MainController.navigate(area: String)
+
+### Combat (Public Zone)
++ nocsrf
+POST     /combat/start              controllers.MainController.startCombat()
++ nocsrf
+POST     /combat/attack             controllers.MainController.playerAttack()
++ nocsrf
+POST     /combat/question           controllers.MainController.answerQuestion()
++ nocsrf
+POST     /combat/end                controllers.MainController.endCombat()
+
+### Shop
++ nocsrf
+GET      /shop/item/:itemName       controllers.MainController.buyItem(itemName: String)
++ nocsrf
+POST     /shop/sell/:itemName       controllers.MainController.sellItem(itemName: String)
++ nocsrf
+GET      /shop/rest                 controllers.MainController.restAtInn()
+
+### Mega Digital Time Portal
++ nocsrf
+GET      /portal/gather/:resourceType   controllers.MainController.gatherResource(resourceType: String)
++ nocsrf
+POST     /portal/craft/:recipeName      controllers.MainController.craftItem(recipeName: String)
+
+### Combat Questions API (for the retro twist - answers collected by server)
++ nocsrf
+GET      /questions                     controllers.MainController.getAvailableQuestions()
+
+# Map static resources from the /public folder to the /assets URL path
+GET      /assets/*file                  controllers.Assets.versioned(path="/public", file: Asset)

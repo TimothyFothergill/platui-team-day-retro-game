@@ -1,0 +1,53 @@
+@()
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Retro RPG - Welcome</title>
+    <link rel="stylesheet" href="/assets/stylesheets/game.css">
+</head>
+<body>
+    <audio id="bg-music" autoplay>
+      <source src="@routes.Assets.versioned("public/music/Newer-Wave.mp3")" type="audio/mpeg">
+    Your browser does not support the audio element.
+    </audio>
+    <div id="welcome-container">
+        <h1>Retro RPG</h1>
+        <p class="subtitle">platui team-day retro game</p>
+        <form id="welcome-form" action="/" method="post">
+            <div class="input-group">
+                <label for="playerNameInput">Enter Your Name, Adventurer:</label>
+                <input
+                    type="text"
+                    id="playerNameInput"
+                    name="playerName"
+                    placeholder="Your name here..."
+                    maxlength="30"
+                    autofocus
+                >
+            </div>
+            <button type="submit" id="start-btn" >Let's goooooo!</button>
+        </form>
+    </div>
+
+    <script>
+        const input = document.getElementById('playerNameInput');
+        const btn = document.getElementById('start-btn');
+
+        function checkInput() {
+            btn.disabled = !input.value.trim();
+        }
+
+        input.addEventListener('input', checkInput);
+        checkInput();
+
+        input.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' && !btn.disabled) {
+                document.getElementById('welcome-form').dispatchEvent(new Event('submit'));
+            }
+        });
+    </script>
+</body>
+</html>
