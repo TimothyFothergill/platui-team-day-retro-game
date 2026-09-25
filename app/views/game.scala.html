@@ -1,0 +1,147 @@
+@import models.PlayerState
+@(player: PlayerState)
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Retro RPG</title>
+    <link rel="stylesheet" href="/assets/stylesheets/game.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Handjet:wght,ELSH@@100..900,2&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div id="game-container">
+        <!-- Header bar with player stats -->
+        <div id="header">
+            <h1 id="player-name-display">Player</h1>
+            <div id="stats">
+                <span class="stat">❤️ HP: <span id="hp">100</span>/<span id="maxHp">100</span></span>
+                <span class="stat">⭐ LVL: <span id="level">1</span></span>
+                <span class="stat">💰 Gold: <span id="gold">50</span></span>
+            </div>
+        </div>
+
+        <!-- Navigation bar -->
+        <div id="nav-bar">
+            <button onclick="navigateTo('publicZone')" class="nav-btn" id="btn-publicZone">⚔️ The public-zone</button>
+            <button onclick="navigateTo('shop')" class="nav-btn" id="btn-shop">🛒 Catalogue</button>
+            <button onclick="navigateTo('portal')" class="nav-btn" id="btn-portal">🌀 The Mega Digital Time Portal</button>
+        </div>
+
+        <!-- Main game area -->
+        <div id="game-area">
+            <!-- Public Zone View -->
+            <div id="publicZone-view" class="area-view hidden">
+                <h2>The public-zone</h2>
+                <p class="area-desc">Battle enemies and recant recent tales</p>
+                <div id="combat-area" class="hidden">
+                    <div id="enemy-display">
+                        <img id="enemy-sprite" src="/assets/images/enemy.png" alt="Enemy" class="retro-sprite">
+                        <h3 id="enemy-name">Slime</h3>
+                        <div class="hp-bar-container">
+                            <div id="enemy-hp-bar" class="hp-bar"></div>
+                            <span id="enemy-hp-text">30/30</span>
+                        </div>
+                    </div>
+                    <div id="combat-actions">
+                        <button onclick="attackEnemy()" class="action-btn">⚔️ Attack!</button>
+                        <button onclick="endCombat()" class="action-btn secondary">🏃 Run Away</button>
+                    </div>
+                    <div id="combat-log"></div>
+                </div>
+                <div id="no-combat-area">
+                    <button onclick="startBattle()" class="action-btn primary">Find an Enemy!</button>
+                </div>
+            </div>
+
+            <!-- Shop View -->
+            <div id="shop-view" class="area-view hidden">
+                <h2>Catalogue</h2>
+                <p class="area-desc">Brought to you by PlatOps! Rest, buy and sell!</p>
+                <div class="shop-sections">
+                    <div class="shop-column">
+                        <h3>Inn - Rest (20 Gold)</h3>
+                        <button onclick="restAtInn()" class="action-btn primary">Heal (Max HP)</button>
+                    </div>
+                    <div class="shop-column">
+                        <h3>Your Inventory</h3>
+                        <ul id="inventory-list"></ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Time Portal View -->
+            <div id="portal-view" class="area-view hidden">
+                <h2>🌀 Mega Digital Time Portal</h2>
+                <p class="area-desc">Gather resources and craft powerful items!</p>
+                <div class="portal-sections">
+                    <div class="portal-column">
+                        <h3>⛏️ Gather Resources</h3>
+                        <button onclick="gatherResource('herbs')" class="action-btn primary">🌿 Gather Herbs</button>
+                        <button onclick="gatherResource('ores')" class="action-btn secondary">💎 Mine Ores</button>
+                        <button onclick="gatherResource('wood')" class="action-btn secondary">🪓 Chop Wood</button>
+                    </div>
+                    <div class="portal-column">
+                        <h3>🔨 Craft Items</h3>
+                        <button onclick="craftItem('Health Potion')" class="action-btn primary">❤️ Health Potion</button>
+                        <button onclick="craftItem('Super Potion')" class="action-btn secondary">💚 Super Potion</button>
+                        <button onclick="craftItem('Iron Sword')" class="action-btn secondary">⚔️ Iron Sword</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Default View (Home) -->
+            <div id="home-view" class="area-view">
+                <h2>Welcome to Retro RPG!</h2>
+                <p class="area-desc">Choose an area above to explore!</p>
+                <div class="welcome-box">
+                    <div class="zone-info">
+                        <span class="zone-icon">⚔️</span>
+                        <div>
+                            <h3>Public Zone</h3>
+                            <p>Fight enemies in turn-based combat!</p>
+                        </div>
+                    </div>
+                    <div class="zone-info">
+                        <span class="zone-icon">🛒</span>
+                        <div>
+                            <h3>Shop</h3>
+                            <p>Buy items, sell loot, and rest at the inn!</p>
+                        </div>
+                    </div>
+                    <div class="zone-info">
+                        <span class="zone-icon">🌀</span>
+                        <div>
+                            <h3>Mega Digital Time Portal</h3>
+                            <p>Gather resources and craft powerful items!</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Question Modal -->
+            <div id="question-modal" class="modal hidden">
+                <div class="modal-content">
+                    <h3 id="question-text"></h3>
+                    <div id="options-container"></div>
+                    <button onclick="closeQuestionModal()" class="action-btn secondary">Skip</button>
+                </div>
+            </div>
+        </div>
+        <audio id="bg-music" controls loop>
+          <source src="public/music/Newer-Wave.mp3 " type="audio/mpeg">
+        Your browser does not support the audio element.
+        </audio>
+
+        <!-- Footer -->
+        <div id="footer">
+            <p>platui team-day retro</p>
+        </div>
+    </div>
+
+    <script src="/assets/javascripts/game.js"></script>
+</body>
+</html>
