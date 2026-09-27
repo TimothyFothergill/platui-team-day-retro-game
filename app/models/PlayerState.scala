@@ -6,9 +6,10 @@ case class PlayerState(
   maxHp: Int,
   gold: Int,
   level: Int,
+  currentXp: Int,
   currentArea: String,
   inventory: List[String],
-  equipment: Map[String, String]
+  equipment: Equipment
 )
 
 object PlayerState {
@@ -18,8 +19,9 @@ object PlayerState {
     maxHp = 100,
     gold = 50,
     level = 1,
+    currentXp = 1,
     currentArea = "publicZone",
     inventory = List(),
-    equipment = Map("weapon" -> "Wooden Sword", "armor" -> "None")
+    equipment = Equipment.newEquipment
   )
 }

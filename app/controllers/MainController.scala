@@ -22,10 +22,6 @@ class MainController @Inject()(
   gameEngine: GameEngine
 )(implicit executionContext: ExecutionContext)
   extends MessagesAbstractController(cc) {
-  def toJsonNode(obj: JsObject): JsonNode = {
-      val mapper = new ObjectMapper()
-      mapper.readTree(obj.toString())
-    }
 
   def welcome() = Action { implicit request: Request[AnyContent] =>
     Ok(views.html.welcome())
@@ -45,17 +41,17 @@ class MainController @Inject()(
   def getPlayerState() = Action { implicit request: Request[AnyContent] =>
     val state = gameEngine.getPlayer
       val json = Json.obj(
-                      "playerName"       -> state.playerName,
-                      "hp"               -> state.hp,
-                      "maxHp"            -> state.maxHp,
-                      "gold"             -> state.gold,
-                      "level"            -> state.level,
-                      "currentArea"      -> state.currentArea,
-                      "inventory"        -> state.inventory,
-                      "equipment"        -> state.equipment
-                    )
-              Ok(json)
-          }
+        "playerName"       -> state.playerName,
+        "hp"               -> state.hp,
+        "maxHp"            -> state.maxHp,
+        "gold"             -> state.gold,
+        "level"            -> state.level,
+        "currentArea"      -> state.currentArea,
+        "inventory"        -> state.inventory,
+        "equipment"        -> state.equipment
+      )
+    Ok(json)
+  }
 
   def navigate(area: String) = Action { implicit request: Request[AnyContent] =>
     gameEngine.setCurrentArea(area)
@@ -67,17 +63,20 @@ class MainController @Inject()(
     gameEngine.startCombat() match {
       case Right(enemy) =>
         val enemyJson = Json.obj(
-                        "name"           -> enemy.name,
-                        "hp"             -> enemy.hp,
-                        "damage"         -> enemy.damage,
-                        "goldReward"     -> enemy.goldReward
-                      )
+          "name"           -> enemy.name,
+          "hp"             -> enemy.hp,
+          "level"          -> enemy.level,
+          "damage"         -> enemy.damage,
+          "goldReward"     -> enemy.goldReward,
+          "xpReward"       -> enemy.xpReward,
+          "imagePath"      -> enemy.imagePath,
+        )
         val result = Json.obj(
-                        "combatActive"        -> true,
-                        "enemy"               -> enemyJson,
-                        "playerHp"            -> gameEngine.getPlayer.hp,
-                        "playerMaxHp"         -> gameEngine.getPlayer.maxHp
-                      )
+          "combatActive"        -> true,
+          "enemy"               -> enemyJson,
+          "playerHp"            -> gameEngine.getPlayer.hp,
+          "playerMaxHp"         -> gameEngine.getPlayer.maxHp
+        )
         Ok(result)
       case Left(error) =>
         val errorJson = Json.obj("error" -> error)
@@ -86,17 +85,17 @@ class MainController @Inject()(
     }
 
   def playerAttack() = Action { implicit request: Request[AnyContent] =>
-    gameEngine.playerAttack(10) match {
+    gameEngine.playerAttack match {
       case result =>
         val json = Json.obj(
-                        "message"            -> result.message,
-                        "enemyName"          -> result.enemyName,
-                        "killed"             -> result.killed,
-                        "reward"             -> result.reward,
-                        "damageDealt"        -> result.damageDealt,
-                        "playerHp"           -> gameEngine.getPlayer.hp,
-                        "maxHp"              -> gameEngine.getPlayer.maxHp
-                      )
+          "message"            -> result.message,
+          "enemyName"          -> result.enemyName,
+          "killed"             -> result.killed,
+          "reward"             -> result.reward,
+          "damageDealt"        -> result.damageDealt,
+          "playerHp"           -> gameEngine.getPlayer.hp,
+          "maxHp"              -> gameEngine.getPlayer.maxHp
+        )
         Ok(json)
       }
     }
@@ -104,11 +103,11 @@ class MainController @Inject()(
   def answerQuestion() = Action { implicit request: Request[AnyContent] =>
     val (message, points) = gameEngine.answerQuestion("", "")
     val json = Json.obj(
-                    "message"             -> message,
-                    "points"              -> points,
-                    "newGold"             -> gameEngine.getPlayer.gold,
-                    "combatActive"        -> false
-                  )
+      "message"             -> message,
+      "points"              -> points,
+      "newGold"             -> gameEngine.getPlayer.gold,
+      "combatActive"        -> false
+    )
     Ok(json)
   }
 
@@ -135,7 +134,7 @@ class MainController @Inject()(
       val json = Json.obj("success" -> true, "message" -> s"Sold $itemName for $price gold!", "gold" -> gameEngine.getPlayer.gold)
       Ok(json)
               } else {
-      val errorJson = Json.obj("error" -> "You don't have that item.")
+      val errorJson = Json.obj("error" -> "You don't have that item - Awkward...")
       BadRequest(errorJson)
     }
   }
@@ -146,7 +145,7 @@ class MainController @Inject()(
         val json = Json.obj("success" -> true, "message" -> "You rested and fully healed! (20 gold)")
         Ok(json)
       case _                          =>
-        val errorJson = Json.obj("error" -> "Rest failed")
+        val errorJson = Json.obj("error" -> "Rest failed - Are you broke? Go gathering and sell stuff.")
         BadRequest(errorJson)
       }
     }
@@ -164,12 +163,14 @@ class MainController @Inject()(
       }
 
     def getAvailableQuestions() = Action { implicit request: Request[AnyContent] =>
-      val q1 = Json.toJson(Json.obj("id" -> "q1", "question" -> "What is 7 x 8?", "options" -> List("54", "56", "58", "60")))
-      val q2 = Json.toJson(Json.obj("id" -> "q2", "question" -> "Which element has atomic number 1?", "options" -> List("Helium", "Hydrogen", "Lithium", "Carbon")))
-      val q3 = Json.toJson(Json.obj("id" -> "q3", "question" -> "How many legs does a spider have?", "options" -> List("6", "8", "10", "4")))
-      val q4 = Json.toJson(Json.obj("id" -> "q4", "question" -> "What is the capital of France?", "options" -> List("London", "Berlin", "Paris", "Madrid")))
-      val q5 = Json.toJson(Json.obj("id" -> "q5", "question" -> "What does HP stand for in games?", "options" -> List("High Power", "Hit Points", "Heavy Punch", "Happy Play")))
-      val questions = List(q1, q2, q3, q4, q5)
+      val q1 = Json.toJson(Json.obj("id" -> "q1", "question" -> "What has gone well?"))
+      val q2 = Json.toJson(Json.obj("id" -> "q2", "question" -> "What could have been better?"))
+      val q3 = Json.toJson(Json.obj("id" -> "q3", "question" -> "What do we do well as a team?"))
+      val q4 = Json.toJson(Json.obj("id" -> "q4", "question" -> "What could we improve? (team working, process, ceremonies etc)"))
+      val q5 = Json.toJson(Json.obj("id" -> "q5", "question" -> "Gratitude: Say thanks to someone and why."))
+      val q6 = Json.toJson(Json.obj("id" -> "q6", "question" -> "What do you wish you knew more about in PlatUI, MDTP or wider?"))
+      val q7 = Json.toJson(Json.obj("id" -> "q7", "question" -> "What is your favourite Slack emoji?"))
+      val questions = List(q1, q2, q3, q4, q5, q6, q7)
       val json = Json.obj("questions" -> questions)
       Ok(json)
     }

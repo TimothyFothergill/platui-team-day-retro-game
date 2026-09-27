@@ -1,5 +1,3 @@
-/* Retro RPG Game Client */
-
 // ============================================================
 // GAME STATE
 // ============================================================
@@ -9,6 +7,7 @@ let gameState = {
   maxHp: 100,
   gold: 50,
   level: 1,
+  currentXp: 1,
   currentArea: 'home',
   inventory: [],
   equipment: {},
@@ -45,20 +44,20 @@ async function navigateTo(area) {
   try {
     const res = await fetch(`/player/navigate/${area}`, { method: 'POST' });
     const data = await res.json();
-    
+
     if (data.success) {
       gameState.currentArea = area;
-      
+
       // Update nav buttons
       document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
       const activeBtn = document.getElementById(`btn-${area}`);
       if (activeBtn) activeBtn.classList.add('active');
-      
+
       // Show the correct view
       document.querySelectorAll('.area-view').forEach(view => view.classList.add('hidden'));
       const targetView = document.getElementById(`${area}-view`);
       if (targetView) targetView.classList.remove('hidden');
-      
+
       // If navigating to public zone, show combat or no-combat UI
       if (area === 'publicZone') {
         if (gameState.combatActive) {
@@ -69,7 +68,7 @@ async function navigateTo(area) {
           document.getElementById('no-combat-area').classList.remove('hidden');
         }
       }
-      
+
       updateUI();
     }
   } catch (err) {
@@ -84,13 +83,15 @@ async function startBattle() {
   try {
     const res = await fetch('/combat/start', { method: 'POST' });
     const data = await res.json();
-    
+
     if (data.combatActive) {
       gameState.enemyHp = data.enemy.hp;
       gameState.enemyMaxHp = data.enemy.hp;
+      document.getElementById('enemy-sprite').src = `/assets/images/${data.enemy.imagePath}`;
       document.getElementById('enemy-name').textContent = data.enemy.name;
+      document.getElementById('enemy-level').textContent = `lv ${data.enemy.level}`;
       updateEnemyHpBar();
-      
+
       document.getElementById('no-combat-area').classList.add('hidden');
       document.getElementById('combat-area').classList.remove('hidden');
     }
@@ -101,24 +102,24 @@ async function startBattle() {
 
 async function attackEnemy() {
   if (!gameState.combatActive) return;
-  
+
   try {
-    const damage = Math.floor(Math.random() * 15) + 6;
+    
     const res = await fetch('/combat/attack', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ damage: damage })
+      body: JSON.stringify({})
     });
     const data = await res.json();
-    
+
     addCombatLog(data.message);
     gameState.hp = data.playerHp;
     updateHPBar();
-    
+
     if (data.killed) {
       gameState.combatActive = false;
       document.getElementById('enemy-display').style.display = 'none';
-      
+
       // Show combat question!
       showCombatQuestion(() => {
         addCombatLog(`🎉 Enemy defeated! You earned ${data.reward} gold!`);
@@ -152,17 +153,17 @@ async function showCombatQuestion(onCorrect) {
   try {
     const res = await fetch('/questions');
     const data = await res.json();
-    
+
     // Pick a random question
     const qIndex = Math.floor(Math.random() * data.questions.length);
     const question = data.questions[qIndex];
     gameState.currentQuestion = question;
-    
+
     document.getElementById('question-text').textContent = question.question;
-    
+
     const optionsContainer = document.getElementById('options-container');
     optionsContainer.innerHTML = '';
-    
+
     question.options.forEach((option, idx) => {
       const btn = document.createElement('button');
       btn.className = 'option-btn';
@@ -170,7 +171,7 @@ async function showCombatQuestion(onCorrect) {
       btn.onclick = () => submitAnswer(option, onCorrect);
       optionsContainer.appendChild(btn);
     });
-    
+
     document.getElementById('question-modal').classList.remove('hidden');
   } catch (err) {
     console.error('Failed to get question:', err);
@@ -194,10 +195,10 @@ async function submitAnswer(answer, onSuccess) {
       })
     });
     const data = await res.json();
-    
+
     closeQuestionModal();
     updateUI();
-    
+
     if (data.combatActive === false) {
       onSuccess();
     } else {
@@ -225,7 +226,7 @@ async function restAtInn() {
   try {
     const res = await fetch('/shop/rest', { method: 'GET' });
     const data = await res.json();
-    
+
     if (data.success) {
       gameState.hp = gameState.maxHp;
       updateUI();
@@ -241,11 +242,23 @@ async function restAtInn() {
 // ============================================================
 // TIME PORTAL
 // ============================================================
-async function gatherResource(resourceType) {
+async function gatherResource(resourceType, event) {
+  // Prevent default button behavior
+  event.preventDefault();
+
+  // Disable the button immediately
+  event.target.disabled = true;
+
+  // Enable the button after 5 seconds
+  setTimeout(() => {
+    event.target.disabled = false;
+    event.target.style.opacity = '1';
+  }, 5000);
+
   try {
     const res = await fetch(`/portal/gather/${resourceType}`, { method: 'GET' });
     const data = await res.json();
-    
+
     alert(data.message);
   } catch (err) {
     console.error('Failed to gather:', err);
@@ -256,7 +269,7 @@ async function craftItem(recipeName) {
   try {
     const res = await fetch(`/portal/craft/${recipeName}`, { method: 'POST' });
     const data = await res.json();
-    
+
     alert(data.message);
   } catch (err) {
     console.error('Failed to craft:', err);
