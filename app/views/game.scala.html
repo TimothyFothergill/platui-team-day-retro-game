@@ -2,147 +2,176 @@
 @(player: PlayerState)
 
 @main("Let's Go On A Retro Adventure") {
-            <!-- Header bar with player stats -->
-            <div id="header">
-                <h1 id="player-name-display">Player</h1>
-                <div id="stats">
-                    <span class="stat">❤️ HP: <span id="hp">100</span>/<span id="maxHp">100</span></span>
-                    <span class="stat">⭐ LVL: <span id="level">1</span></span>
-                    <span class="stat">💰 Gold: <span id="gold">50</span></span>
-                </div>
-                <div id="resources">
-                    <span id="caffieneResources">🌿: 0</span>
-                    <span id="chipsResources">📟: 0</span>
-                    <span id="documentationResources">📑: 0</span>
-                </div>
-            </div>
+             <!-- Header bar with player stats -->
+             <div id="header">
+                 <h1 id="player-name-display">Player</h1>
+                 <div id="stats">
+                     <span class="stat">❤️ HP: <span id="hp">100</span>/<span id="maxHp">100</span></span>
+                     <span class="stat">⚔️ DMG: <span id="damage">1</span></span>
+                     <span class="stat">🛡️ ARM: <span id="armour">0</span></span>
+                     <span class="stat">💰 Gold: <span id="gold">50</span></span>
+                 </div>
+                 <div id="resources">
+                     <span id="caffeineResources">0</span>
+                     <span id="chipsResources">0</span>
+                     <span id="documentationResources">0</span>
+                 </div>
+             </div>
 
-            <!-- Navigation bar -->
-            <div id="nav-bar">
-                <button onclick="navigateTo('publicZone')" class="nav-btn" id="btn-publicZone">⚔️ The public-zone</button>
-                <button onclick="navigateTo('shop')" class="nav-btn" id="btn-shop">🛒 Catalogue</button>
-                <button onclick="navigateTo('portal')" class="nav-btn" id="btn-portal">🌀 The Mega Digital Time Portal</button>
-            </div>
+             <!-- Navigation bar -->
+             <div id="nav-bar">
+                 <button onclick="navigateTo('publicZone')" class="nav-btn" id="btn-publicZone">⚔️ The public-zone</button>
+                 <button onclick="navigateTo('shop')" class="nav-btn" id="btn-shop">🛒 Catalogue</button>
+                 <button onclick="navigateTo('portal')" class="nav-btn" id="btn-portal">🌀 The Mega Digital Time Portal</button>
+             </div>
 
-            <!-- Main game area -->
-            <div id="game-area">
-                <!-- Public Zone View -->
-                <div id="publicZone-view" class="area-view hidden">
-                    <h2>The public-zone</h2>
-                    <p class="area-desc">Help Infra out! Battle enemies and recant recent tales</p>
-                    <div id="combat-area" class="hidden">
-                        <div id="enemy-display">
-                            <img id="enemy-sprite" src="/assets/images/catcringe.webp" alt="Enemy" class="retro-sprite">
-                            <h3 id="enemy-name">Slime</h3>
-                            <h3 id="enemy-level">Lv 0</h3>
-                            <div class="hp-bar-container">
-                                <div id="enemy-hp-bar" class="hp-bar"></div>
-                                <span id="enemy-hp-text">30/30</span>
-                            </div>
-                        </div>
-                        <div id="combat-actions">
-                            <button onclick="attackEnemy()" class="action-btn">⚔️ Attack!</button>
-                            <button onclick="endCombat()" class="action-btn secondary">🏃 Run Away</button>
-                        </div>
-                        <div id="combat-log"></div>
-                    </div>
-                    <div id="no-combat-area">
-                        <button onclick="startBattle()" class="action-btn primary">Find an Enemy!</button>
-                    </div>
-                </div>
+             <!-- Main game area -->
+             <div id="game-area">
+                 <!-- Public Zone View -->
+                 <div id="publicZone-view" class="area-view hidden">
+                     <h2>The public-zone</h2>
+                     <p class="area-desc">Help Infra out! Battle enemies and recant recent tales</p>
+                     <div id="combat-area" class="hidden">
+                         <div id="enemy-display">
+                             <img id="enemy-sprite" src="/assets/images/bruhvarg.png" alt="Enemy" class="retro-sprite">
+                             <h3 id="enemy-name">Slime</h3>
+                             <h3 id="enemy-level">Lv 0</h3>
+                             <div class="hp-bar-container">
+                                 <div id="enemy-hp-bar" class="hp-bar"></div>
+                                 <span id="enemy-hp-text">30/30</span>
+                             </div>
+                         </div>
+                         <div id="combat-actions">
+                             <button onclick="attackEnemy()" class="action-btn">⚔️ Attack!</button>
+                             <button onclick="endCombat()" class="action-btn secondary">🏃 Run Away</button>
+                         </div>
+                         <div id="combat-log"></div>
+                     </div>
+                     <div id="no-combat-area">
+                         <button onclick="startBattle()" class="action-btn primary">Find an Enemy!</button>
+                     </div>
+                 </div>
 
-                <!-- Shop View -->
-                <div id="shop-view" class="area-view hidden">
-                    <h2>Catalogue</h2>
-                    <p class="area-desc">Brought to you by your friends in PlatOps! Rest, buy and sell!</p>
-                    <div class="shop-sections">
-                        <div class="shop-column">
-                            <h3>Inn - Rest (20 Gold)</h3>
-                            <button onclick="restAtInn()" class="action-btn primary">Heal (Max HP)</button>
-                        </div>
-                        <div class="shop-column">
-                            <h3>Your Inventory</h3>
-                            <ul id="inventory-list"></ul>
-                        </div>
-                    </div>
-                </div>
+                 <!-- Shop View -->
+                 <div id="shop-view" class="area-view hidden">
+                     <h2>Catalogue</h2>
+                     <p class="area-desc">Brought to you by your friends in PlatOps! Rest, buy and sell!</p>
+                     <div class="shop-sections">
+                         <div class="shop-column">
+                             <h3>Inn - Rest (20 Gold)</h3>
+                             <button onclick="restAtInn()" class="action-btn primary">Heal (Max HP)</button>
+                         </div>
+                         <div class="shop-column">
+                             <h3>Your Inventory</h3>
+                             <ul id="inventory-list"></ul>
+                         </div>
+                     </div>
+                 </div>
 
-                <!-- Time Portal View -->
-                <div id="portal-view" class="area-view hidden">
-                    <h2>🌀 Mega Digital Time Portal</h2>
-                    <p class="area-desc">Build & Deploy need help building! Gather resources and craft powerful items!</p>
-                    <div class="portal-sections">
-                        <div class="portal-column">
-                            <h3>⛏️ Gather Resources</h3>
-                            <button onclick="gatherResource('caffeine', event)" class="action-btn secondary">🌿 Gather caffeine</button>
-                            <label for="caffeineCooldown" hidden>Cooldown:</label>
-                            <progress id="caffeineCooldown" max="100" value="0" hidden>0%</progress>
-                            <button onclick="gatherResource('chips', event)" class="action-btn secondary">📟 Hoard CPU chips</button>
-                            <label for="chipsCooldown" hidden>Cooldown:</label>
-                            <progress id="chipsCooldown" max="100" value="0" hidden>0%</progress>
-                            <button onclick="gatherResource('documentation', event)" class="action-btn secondary">📑 Produce Documentation</button>
-                            <label for="documentationCooldown" hidden>Cooldown:</label>
-                            <progress id="documentationCooldown" max="100" value="0" hidden>0%</progress>
-                        </div>
-                        <div class="portal-column">
-                            <h3>🔨 Craft Items</h3>
-                            <button onclick="craftItem('A cuppa tea')" class="action-btn secondary">❤️ A cuppa tea          </button>
-                            <button onclick="craftItem('Small Goods coffee')" class="action-btn secondary"> ❤️❤️ Small Goods coffee </button>
-                            <button onclick="craftItem('Macbook M1 Pro')" class="action-btn secondary">     💻⚔️ Macbook M1 Pro     </button>
-                            <button onclick="craftItem('Macbook M2 Pro')" class="action-btn secondary">     💻⚔️ Macbook M2 Pro     </button>
-                            <button onclick="craftItem('Macbook M3 Pro')" class="action-btn secondary">     💻⚔️ Macbook M3 Pro     </button>
-                            <button onclick="craftItem('Macbook M4 Pro')" class="action-btn secondary">     💻⚔️ Macbook M4 Pro     </button>
-                            <button onclick="craftItem('Macbook M5 Pro')" class="action-btn secondary">     💻⚔️ Macbook M5 Pro     </button>
-                            <button onclick="craftItem('Smart Armour')" class="action-btn secondary">       🛡️ Smart Armour         </button>
-                            <button onclick="craftItem('Smarter Armour')" class="action-btn secondary">     🛡️ Smarter Armour       </button>
-                            <button onclick="craftItem('Smarterer Armour')" class="action-btn secondary">   🛡️ Smarterer Armour     </button>
-                            <button onclick="craftItem('Smartererer Armour')" class="action-btn secondary"> 🛡️ Smartererer Armour   </button>
-                            <button onclick="craftItem('Smartest Armour')" class="action-btn secondary">    🛡️ Smartest Armour      </button>
-                        </div>
-                    </div>
-                </div>
+                 <!-- Time Portal View -->
+                 <div id="portal-view" class="area-view hidden">
+                     <h2>🌀 Mega Digital Time Portal</h2>
+                     <p class="area-desc">Build & Deploy need help building! Gather resources and craft powerful items!</p>
+                     <div class="portal-sections">
+                         <div class="portal-column">
+                             <h3>⛏️ Gather Resources</h3>
+                             <button onclick="gatherResource('caffeine', event)" class="action-btn secondary">🌿 Gather caffeine</button>
+                             <label for="caffeineCooldown" hidden>Cooldown:</label>
+                             <progress id="caffeineCooldown" max="100" value="0" hidden>0%</progress>
+                             <button onclick="gatherResource('chips', event)" class="action-btn secondary">📟 Hoard CPU chips</button>
+                             <label for="chipsCooldown" hidden>Cooldown:</label>
+                             <progress id="chipsCooldown" max="100" value="0" hidden>0%</progress>
+                             <button onclick="gatherResource('documentation', event)" class="action-btn secondary">📑 Produce Documentation</button>
+                             <label for="documentationCooldown" hidden>Cooldown:</label>
+                             <progress id="documentationCooldown" max="100" value="0" hidden>0%</progress>
+                         </div>
+                         <div class="portal-column">
+                             <h3>🔨 Craft Items</h3>
+                             <button onclick="craftItem('A cuppa tea')" class="action-btn secondary">💰 A cuppa tea (🌿x5)          </button>
+                             <button onclick="craftItem('Small Goods coffee')" class="action-btn secondary"> 💰💰 Small Goods coffee (🌿x10) </button>
+                             <button onclick="craftItem('Macbook M1 Pro')" class="action-btn secondary">      💻⚔️ Macbook M1 Pro (📟 x 10)     </button>
+                             <button onclick="craftItem('Macbook M2 Pro')" class="action-btn secondary">      💻⚔️ Macbook M2 Pro (📟 x 11 + M1 Pro)     </button>
+                             <button onclick="craftItem('Macbook M3 Pro')" class="action-btn secondary">      💻⚔️ Macbook M3 Pro (📟 x 12 + M2 Pro)     </button>
+                             <button onclick="craftItem('Macbook M4 Pro')" class="action-btn secondary">      💻⚔️ Macbook M4 Pro (📟 x 13 + M3 Pro)     </button>
+                             <button onclick="craftItem('Macbook M5 Pro')" class="action-btn secondary">      💻⚔️ Macbook M5 Pro (📟 x 15 + M4 Pro)     </button>
+                             <button onclick="craftItem('Smart Armour')" class="action-btn secondary">        🛡️ Smart Armour (📑 x 10)         </button>
+                             <button onclick="craftItem('Smarter Armour')" class="action-btn secondary">      🛡️ Smarter Armour (📑 x 11 + Smart Armour)       </button>
+                             <button onclick="craftItem('Smarterer Armour')" class="action-btn secondary">    🛡️ Smarterer Armour (📑 x 12 + Smarter Armour)     </button>
+                             <button onclick="craftItem('Smartererer Armour')" class="action-btn secondary"> 🛡️ Smartererer Armour (📑 x 13 + Smarterer Armour)   </button>
+                             <button onclick="craftItem('Smartest Armour')" class="action-btn secondary">     🛡️ Smartest Armour (📑 x 15 + Smartererer Armour)      </button>
+                         </div>
+                     </div>
+                 </div>
 
-                <!-- Default View (Home) -->
-                <div id="home-view" class="area-view">
-                    <h2>Welcome to Retro RPG!</h2>
-                    <p class="area-desc">Choose an area above to explore!</p>
-                    <div class="welcome-box">
-                        <div class="zone-info">
-                            <span class="zone-icon">⚔️</span>
-                            <div>
-                                <h3>Public Zone</h3>
-                                <p>Fight enemies in turn-based combat!</p>
-                            </div>
-                        </div>
-                        <div class="zone-info">
-                            <span class="zone-icon">🛒</span>
-                            <div>
-                                <h3>Shop</h3>
-                                <p>Buy items, sell loot, and rest at the inn!</p>
-                            </div>
-                        </div>
-                        <div class="zone-info">
-                            <span class="zone-icon">🌀</span>
-                            <div>
-                                <h3>Mega Digital Time Portal</h3>
-                                <p>Gather resources and craft powerful items!</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+                 <!-- Default View (Home) -->
+                 <div id="home-view" class="area-view">
+                     <h2>Welcome to Retro RPG!</h2>
+                     <p class="area-desc">Choose an area above to explore!</p>
+                     <div class="welcome-box">
+                         <div class="zone-info">
+                             <span class="zone-icon">⚔️</span>
+                             <div>
+                                 <h3>Public Zone</h3>
+                                 <p>Fight enemies in turn-based combat!</p>
+                             </div>
+                         </div>
+                         <div class="zone-info">
+                             <span class="zone-icon">🛒</span>
+                             <div>
+                                 <h3>Shop</h3>
+                                 <p>Buy items, sell loot, and rest at the inn!</p>
+                             </div>
+                         </div>
+                         <div class="zone-info">
+                             <span class="zone-icon">🌀</span>
+                             <div>
+                                 <h3>Mega Digital Time Portal</h3>
+                                 <p>Gather resources and craft powerful items!</p>
+                             </div>
+                         </div>
+                     </div>
+                 </div>
 
-                <!-- Question Modal -->
+                 <!-- Question Modal -->
                 <div id="question-modal" class="modal hidden">
                     <div class="modal-content">
                         <h3 id="question-text"></h3>
                         <div id="options-container"></div>
-                        <button onclick="closeQuestionModal()" class="action-btn secondary">Skip</button>
                     </div>
                 </div>
-            </div>
-            <audio id="bg-music" autoplay loop>
-            <source src="assets/music/Newer-Wave.mp3" type="audio/mpeg">
-            Your browser does not support audio, soz. Imagine there's music.
-            </audio>
-        <script src="/assets/javascripts/game.js"></script>
+
+                 <!-- End Game View -->
+                 <div id="endgame-view" class="area-view hidden">
+                     <h2>🏁 Game Complete!</h2>
+                     <p class="area-desc">Here's your retro journey, adventurer.</p>
+
+                     <!-- Questions & Answers -->
+                     <div class="endgame-section">
+                         <h3>📝 Your Answers</h3>
+                         <div id="questions-answers-list"></div>
+                     </div>
+
+                     <!-- Game Stats -->
+                     <div class="endgame-section">
+                         <h3>⚔️ Your Stats</h3>
+                         <div id="endgame-stats"></div>
+                     </div>
+
+                     <!-- Final Message -->
+                     <div class="endgame-message">
+                         <p>Thanks for retro-ing! Do not leave this page, we will read out our answers to one another now.</p>
+                     </div>
+                 </div>
+
+             </div>
+             <!-- Footer -->
+             <div id="footer">
+                 <p>platui team-day retro</p>
+                 <button class="action-btn" style="margin-top:10px;font-size:0.9em;" onclick="endGame()">🏁 End Game</button>
+             </div>
+             <audio id="bg-music" autoplay loop>
+             <source src="assets/music/Newer-Wave.mp3" type="audio/mpeg">
+          Your browser does not support audio, soz. Imagine there's music.
+             </audio>
+         <script src="/assets/javascripts/game.js"></script>
 }

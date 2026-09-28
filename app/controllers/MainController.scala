@@ -41,17 +41,17 @@ class MainController @Inject()(
   def getPlayerState() = Action { implicit request: Request[AnyContent] =>
     val state = gameEngine.getPlayer
       val json = Json.obj(
-        "playerName"       -> state.playerName,
-        "hp"               -> state.hp,
-        "maxHp"            -> state.maxHp,
-        "gold"             -> state.gold,
-        "level"            -> state.level,
-        "currentArea"      -> state.currentArea,
-        "inventory"        -> state.inventory,
-        "equipment"        -> state.equipment
-      )
+         "playerName"        -> state.playerName,
+         "hp"                -> state.hp,
+         "maxHp"             -> state.maxHp,
+         "gold"              -> state.gold,
+         "currentArea"       -> state.currentArea,
+         "inventory"         -> state.inventory,
+         "equipment"         -> state.equipment,
+         "resources"         -> state.resources
+        )
     Ok(json)
-  }
+     }
 
   def navigate(area: String) = Action { implicit request: Request[AnyContent] =>
     gameEngine.setCurrentArea(area)
@@ -85,31 +85,49 @@ class MainController @Inject()(
     }
 
   def playerAttack() = Action { implicit request: Request[AnyContent] =>
-    gameEngine.playerAttack match {
+    val multiplierOpt = request.queryString.get("multiplier").flatMap(_.headOption).map(m => m.toDouble)
+    val multiplier = if (multiplierOpt.exists(_ > 1.0)) multiplierOpt.get else 1.0
+
+       // Log to terminal
+    if (multiplier >= 2.0) {
+      println(s"✅ Player answered a question! Damage: x${multiplier}")
+      } else {
+      println("➡ Player attacked without answering. Normal damage.")
+      }
+    gameEngine.playerAttack(multiplier) match {
       case result =>
         val json = Json.obj(
-          "message"            -> result.message,
-          "enemyName"          -> result.enemyName,
-          "killed"             -> result.killed,
-          "reward"             -> result.reward,
-          "damageDealt"        -> result.damageDealt,
-          "playerHp"           -> gameEngine.getPlayer.hp,
-          "maxHp"              -> gameEngine.getPlayer.maxHp
-        )
+           "message"              -> result.message,
+           "enemyName"            -> result.enemyName,
+           "killed"               -> result.killed,
+           "reward"               -> result.reward,
+           "damageDealt"          -> result.damageDealt,
+           "currentEnemyHp"       -> result.currentEnemyHp,
+           "playerHp"             -> gameEngine.getPlayer.hp,
+           "maxHp"                -> gameEngine.getPlayer.maxHp
+          )
         Ok(json)
-      }
-    }
+       }
+     }
 
   def answerQuestion() = Action { implicit request: Request[AnyContent] =>
-    val (message, points) = gameEngine.answerQuestion("", "")
+    val questionId = request.queryString.get("questionId").flatMap(_.headOption).getOrElse("")
+    val answer = request.body.asFormUrlEncoded.flatMap(_.get("answer")).flatMap(_.headOption).getOrElse("")
+    val (message, points) = gameEngine.answerQuestion(questionId, answer)
     val json = Json.obj(
-      "message"             -> message,
-      "points"              -> points,
-      "newGold"             -> gameEngine.getPlayer.gold,
-      "combatActive"        -> false
-    )
+        "message"               -> message,
+        "points"                -> points,
+        "newGold"               -> gameEngine.getPlayer.gold,
+        "combatActive"          -> false
+      )
     Ok(json)
-  }
+    }
+
+  def getQuestions() = Action { implicit request: Request[AnyContent] =>
+    val questions = gameEngine.getAvailableQuestions()
+    val json = Json.obj("questions" -> questions)
+    Ok(json)
+    }
 
   def endCombat() = Action { implicit request: Request[AnyContent] =>
     gameEngine.endCombat()
@@ -142,7 +160,7 @@ class MainController @Inject()(
   def restAtInn() = Action { implicit request: Request[AnyContent] =>
     gameEngine.restAtInn() match {
       case Right(true)                 =>
-        val json = Json.obj("success" -> true, "message" -> "You rested and fully healed! (20 gold)")
+        val json = Json.obj("success" -> true, "message" -> "You rested and fully healed! (20 gold)", "gold" -> gameEngine.getPlayer.gold)
         Ok(json)
       case _                          =>
         val errorJson = Json.obj("error" -> "Rest failed - Are you broke? Go gathering and sell stuff.")
@@ -157,21 +175,23 @@ class MainController @Inject()(
     }
 
     def craftItem(recipeName: String) = Action { implicit request: Request[AnyContent] =>
-      val result = gameEngine.craftItem(recipeName)
-      val json = Json.obj("message" -> result)
-      Ok(json)
-      }
+      gameEngine.craftItem(recipeName) match {
+        case Right(message)           => Ok(Json.obj("success" -> true,  "message" -> message))
+        case Left(error)              => BadRequest(Json.obj("success" -> false, "message" -> error))
+       }
+     }
 
-    def getAvailableQuestions() = Action { implicit request: Request[AnyContent] =>
-      val q1 = Json.toJson(Json.obj("id" -> "q1", "question" -> "What has gone well?"))
-      val q2 = Json.toJson(Json.obj("id" -> "q2", "question" -> "What could have been better?"))
-      val q3 = Json.toJson(Json.obj("id" -> "q3", "question" -> "What do we do well as a team?"))
-      val q4 = Json.toJson(Json.obj("id" -> "q4", "question" -> "What could we improve? (team working, process, ceremonies etc)"))
-      val q5 = Json.toJson(Json.obj("id" -> "q5", "question" -> "Gratitude: Say thanks to someone and why."))
-      val q6 = Json.toJson(Json.obj("id" -> "q6", "question" -> "What do you wish you knew more about in PlatUI, MDTP or wider?"))
-      val q7 = Json.toJson(Json.obj("id" -> "q7", "question" -> "What is your favourite Slack emoji?"))
-      val questions = List(q1, q2, q3, q4, q5, q6, q7)
-      val json = Json.obj("questions" -> questions)
-      Ok(json)
-    }
+      def getAvailableQuestions() = Action { implicit request: Request[AnyContent] =>
+        val questions = List(
+          "What has gone well?",
+          "What could have been better?",
+          "What do we do well as a team?",
+          "What could we improve? (team working, process, ceremonies etc)",
+          "Gratitude: Say thanks to someone and why.",
+          "What do you wish you knew more about in PlatUI, MDTP or wider?",
+          "What is your favourite Slack emoji?"
+        )
+        val json = Json.obj("questions" -> questions)
+        Ok(json)
+       }
 }

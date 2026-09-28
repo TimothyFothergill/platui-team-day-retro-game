@@ -5,12 +5,14 @@ case class PlayerState(
   hp: Int,
   maxHp: Int,
   gold: Int,
-  level: Int,
   currentXp: Int,
   currentArea: String,
   inventory: List[String],
-  equipment: Equipment
-)
+  equipment: Equipment,
+  resources: Map[String, Int]
+) {
+  def withResources(resources: Map[String, Int]): PlayerState = this.copy(resources = resources)
+}
 
 object PlayerState {
   def newPlayer(name: String): PlayerState = PlayerState(
@@ -18,10 +20,14 @@ object PlayerState {
     hp = 100,
     maxHp = 100,
     gold = 50,
-    level = 1,
-    currentXp = 1,
-    currentArea = "publicZone",
-    inventory = List(),
-    equipment = Equipment.newEquipment
+    currentXp = 0,
+    currentArea = "home",
+    inventory = Nil,
+    equipment = Equipment.newEquipment,
+    resources = Map(
+      "caffeine" -> 0,
+      "chips" -> 0,
+      "documentation" -> 0
+    )
   )
 }
